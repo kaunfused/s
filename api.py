@@ -152,9 +152,9 @@ if __name__ == "__main__":
     # Check if the app is running in debug mode
     debug = os.environ.get("FLASK_ENV") == "development"
 
-    # Set the host and port for the app
-    host = os.environ.get("HOST", "0.0.0.0")
-    port = int(os.environ.get("PORT", 5000))
+    # Get the host and port from environment variables
+    host = os.environ.get("HOST")
+    port = int(os.environ.get("PORT"))
 
     # Run the app using Gunicorn
     bind = f"{host}:{port}"
