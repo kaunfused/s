@@ -146,4 +146,14 @@ def sentiment_mapping(x):
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    import os
+
+    # Check if the app is running in debug mode
+    debug = os.environ.get("FLASK_ENV") == "development"
+
+    # Set the host and port for the app
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", 5000))
+
+    # Run the app
+    app.run(host=host, port=port, debug=debug)
