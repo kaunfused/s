@@ -2,10 +2,10 @@ from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS
 import re
 from io import BytesIO
-
-# nltk.download('stopwords')
-from nltk.corpus import stopwords
+import nltk
 from nltk.stem.porter import PorterStemmer
+nltk.download('stopwords')
+from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
