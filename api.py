@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 import base64
+import os
 
 STOPWORDS = set(stopwords.words("english"))
 
@@ -145,9 +146,9 @@ def sentiment_mapping(x):
         return "Negative"
 
 
-if __name__ == "__main__":
-    import os
+ # Assuming your Flask app instance is named 'app'
 
+if __name__ == "__main__":
     # Check if the app is running in debug mode
     debug = os.environ.get("FLASK_ENV") == "development"
 
@@ -155,5 +156,10 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", 5000))
 
-    # Run the app
-    app.run(host=host, port=port, debug=debug)
+    # Run the app using Gunicorn
+    bind = f"{host}:{port}"
+    workers = 4  # You can adjust the number of workers based on your needs
+    loglevel = "debug" if debug else "info"
+
+    # Run the app with Gunicorn
+    os.system(f"gunicorn -w {workers} -b {bind} --log-level {loglevel} app:app")
