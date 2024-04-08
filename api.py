@@ -2,15 +2,13 @@ from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS
 import re
 from io import BytesIO
-import nltk
-from nltk.stem.porter import PorterStemmer
-nltk.download('stopwords')
+
 from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 import base64
-import os
 
 STOPWORDS = set(stopwords.words("english"))
 
@@ -40,6 +38,8 @@ def predict():
             # Bulk prediction from CSV file
             file = request.files["file"]
             data = pd.read_csv(file)
+
+            data_list = data.values.tolist()
 
             predictions, graph = bulk_prediction(predictor, scaler, cv, data)
 
@@ -82,7 +82,7 @@ def single_prediction(predictor, scaler, cv, text_input):
     y_predictions = predictor.predict_proba(X_prediction_scl)
     y_predictions = y_predictions.argmax(axis=1)[0]
 
-    return "POSITIVE!" if y_predictions == 1 else "NEGATIVE"
+    return "POSITIVE! 😄" if y_predictions == 1 else "NEGATIVE 😡"
 
 
 def bulk_prediction(predictor, scaler, cv, data):
@@ -146,20 +146,5 @@ def sentiment_mapping(x):
         return "Negative"
 
 
- # Assuming your Flask app instance is named 'app'
-
 if __name__ == "__main__":
-    # Check if the app is running in debug mode
-    debug = os.environ.get("FLASK_ENV") == "development"
-
-    # Get the host and port from environment variables
-    host = os.environ.get("HOST")
-    port = int(os.environ.get("PORT"))
-
-    # Run the app using Gunicorn
-    bind = f"{host}:{port}"
-    workers = 4  # You can adjust the number of workers based on your needs
-    loglevel = "debug" if debug else "info"
-
-    # Run the app with Gunicorn
-    os.system(f"gunicorn -w {workers} -b {bind} --log-level {loglevel} app:app")
+    app.run(port=5000, debug=True)
