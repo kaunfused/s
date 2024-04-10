@@ -192,4 +192,17 @@ def sentiment_mapping(x):
         return "Negative"
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    # Check if the app is running in debug mode
+    debug = os.environ.get("FLASK_ENV") == "development"
+
+    # Get the host and port from environment variables
+    host = os.environ.get("HOST")
+    port = int(os.environ.get("PORT"))
+
+    # Run the app using Gunicorn
+    bind = f"{host}:{port}"
+    workers = 4  # You can adjust the number of workers based on your needs
+    loglevel = "debug" if debug else "info"
+
+    # Run the app with Gunicorn
+    os.system(f"gunicorn -w {workers} -b {bind} --log-level {loglevel} app:app")
