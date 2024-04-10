@@ -5,7 +5,7 @@ import requests
 from io import BytesIO
 
 # flask --app api.py run --port=5000
-prediction_endpoint = "https://sentiment-rev.onrender.com/predict"
+prediction_endpoint = "https://s-xt6h.onrender.com/predict"
 
 st.title("Text Sentiment Predictor")
 

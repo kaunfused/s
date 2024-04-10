@@ -259,7 +259,7 @@
           var formData = new FormData();
           formData.append("file", csvFileInput.files[0]);
 
-          fetch("https://sentiment-rev.onrender.com/predict", {
+          fetch("https://s-xt6h.onrender.com/predict", {
             method: "POST",
             body: formData,
           })
@@ -310,7 +310,7 @@
               console.error("Error:", error);
             });
         } else if (textInput.value.trim() !== "") {
-          fetch("https://sentiment-rev.onrender.com/predict", {
+          fetch("https://s-xt6h.onrender.com/predict", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
