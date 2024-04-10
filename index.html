@@ -5,8 +5,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <!-- <link rel="shortcut icon" href="./assets/img/favicon.ico" /> -->
-  <!-- <link rel="apple-touch-icon" sizes="76x76" href="./assets/img/afpple-icon.png" /> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,6 +145,11 @@
     .sentiment {
       color: #215a5e;
     }
+
+    .summaryResult {
+      font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+      font-size: 25px;
+    }
   </style>
 </head>
 
@@ -171,13 +174,18 @@
         <textarea id="textInput" class="form-control" placeholder="Enter text..."></textarea>
       </div>
 
-      <button type="button" onclick="predict()" class="btn">ANALYZE</button>
+      <button type="button" id="PredictButton" onclick="predict()" class="btn">ANALYZE</button>
     </form>
 
     <div class="result">
-      <h2>Sentiment Analysis Result</h2>
+      <h2>Sentiment Analysis Result for Individual Review</h2>
       <div class="result-box">
         <div id="predictionResult"></div>
+      </div>
+
+      <h2>Overall Sentiment of the Buyers</h2>
+      <div class="result-box">
+        <div id="summaryResult"></div>
       </div>
 
       <h2 class="mt-10">Graph Result</h2>
@@ -196,26 +204,43 @@
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
   <script>
     function predict() {
-      // Check if CSV file is present
+      var PredictButton = document.getElementById("PredictButton");
       var csvFileInput = document.getElementById("csvFileInput");
       var textInput = document.getElementById("textInput");
       var predictionResult = document.getElementById("predictionResult");
+      var summaryResult = document.getElementById("summaryResult");
+      var prosResult = document.getElementById("prosResult");
+      var consResult = document.getElementById("consResult");
+      // var likesDislikesResult = document.getElementById("likesDislikesResult");
       var graphContainer = document.getElementById("graphContainer");
 
+      PredictButton.innerHTML = "Analyzing...";
+
       if (csvFileInput.files.length > 0) {
-        // Upload CSV file
         var formData = new FormData();
         formData.append("file", csvFileInput.files[0]);
 
-        fetch("https://sentimentscanner.onrender.com/predict", {
+        fetch("http://localhost:5000/predict", {
           method: "POST",
           body: formData,
         })
           .then((response) => {
+            PredictButton.innerHTML = "Analyze";
+            // Graph Header Response.................................................
             if (response.headers.get("X-Graph-Exists") === "true") {
               console.log("Graph");
               var graphData = response.headers.get("X-Graph-Data");
               displayGraph(graphData);
+            }
+
+            // Summary Headers.......................................................
+            const summaryResponseHeader = response.headers.get("summary-response");
+            if (summaryResponseHeader) {
+              const summaryResponse = JSON.parse(summaryResponseHeader);
+              const summaryContent = summaryResponse.summary;
+              summaryResult.innerHTML = summaryContent;
+            } else {
+              summaryResult.innerHTML = "api not responded anything";
             }
 
             return response.blob();
@@ -241,8 +266,7 @@
             console.error("Error:", error);
           });
       } else if (textInput.value.trim() !== "") {
-        // Predict on single sentence
-        fetch("https://sentimentscanner.onrender.com/predict", {
+        fetch("http://localhost:5000/predict", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -253,7 +277,7 @@
           .then((data) => {
             console.log(data);
             predictionResult.innerHTML =
-              "Predicted sentiment: " + data.prediction;
+              "Analyzed sentiment: " + data.prediction;
           });
       }
     }

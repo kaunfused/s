@@ -2,13 +2,35 @@ from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS
 import re
 from io import BytesIO
-
+import os
+import json
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 import base64
+from dotenv import load_dotenv
+load_dotenv()
+
+# Gemini API Imports.......................................................................
+import pathlib
+import textwrap
+
+import google.generativeai as genai
+
+from IPython.display import display
+from IPython.display import Markdown
+
+GOOGLE_API_KEY=os.getenv('GOOGLE_API_KEY')
+
+genai.configure(api_key=GOOGLE_API_KEY)
+
+model = genai.GenerativeModel('gemini-pro')
+# ...........................................................................................
+
+# from prometheus_client import Summary
+
 
 STOPWORDS = set(stopwords.words("english"))
 
@@ -41,22 +63,45 @@ def predict():
 
             data_list = data.values.tolist()
 
+            text_data_list = "\n".join([", ".join(map(str, row)) for row in data_list])
+        
+            response = model.generate_content(f"You will receive some real reviews for a specific product. You've to respond with a summary of all the reviews in 40-50 words and also highlight the pros and cons in a point wise manner. First write the summary after writing the Summary heading. Then Write the PROS heading seperating each pros by a newline and then write the CONS seperating each cons by a newline, Dont use asterisk sign anywhere to bold headings in the answer. Make sure to stick the response to this exact format I've mentioned. Here are the reviews: {text_data_list}")
+
+            print(response.text)
+
+            summary = response.text
+            
+            review_data = {
+                'summary': summary.replace('\n', '<br>'),
+                # 'pros': pros.replace('\n', '<br>'),
+                # 'cons': cons.replace('\n', '<br>')
+            }
+
+            # print(review_data)
+
             predictions, graph = bulk_prediction(predictor, scaler, cv, data)
 
-            response = send_file(
+            responding = send_file(
                 predictions,
                 mimetype="text/csv",
                 as_attachment=True,
                 download_name="Predictions.csv",
             )
 
-            response.headers["X-Graph-Exists"] = "true"
+            # SETTING RESPONSE HEADERS.....................
 
-            response.headers["X-Graph-Data"] = base64.b64encode(
+            # Setting graph realted headers
+            # Setting graph realted headers
+            responding.headers["X-Graph-Exists"] = "true"
+            responding.headers["X-Graph-Data"] = base64.b64encode(
                 graph.getbuffer()
             ).decode("ascii")
 
-            return response
+
+            # Setting gemini response header
+            responding.headers.set("summary-response", json.dumps(review_data))
+
+            return responding
 
         elif "text" in request.json:
             # Single string prediction
@@ -138,13 +183,11 @@ def get_distribution_graph(data):
 
     return graph
 
-
 def sentiment_mapping(x):
     if x == 1:
         return "Positive"
     else:
         return "Negative"
-
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
