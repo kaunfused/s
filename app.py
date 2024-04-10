@@ -4,6 +4,8 @@ import re
 from io import BytesIO
 import os
 import json
+import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import matplotlib.pyplot as plt
