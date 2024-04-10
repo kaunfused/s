@@ -1,304 +1,342 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
-  <title>Sentiment Analysis</title>
-  <style>
-    body {
-      background-color: #f0f4f8;
-      font-family: "Noto Sans", sans-serif;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px 50px;
-      background-color: #FFFFFE;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
-      border-radius: 16px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
-    .header h1 {
-      font-size: 55px;
-      color: #2c3e50;
-      margin-bottom: 15px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      font-weight: 700;
-    }
-
-    .header p {
-      font-size: 18px;
-      color: #7f8c8d;
-      line-height: 1.4;
-      margin-bottom: 15px;
-    }
-
-    .note {
-      background-color: #c7e8eb;
-      padding: 18px;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: bold;
-      font-size: medium;
-      /* color: #0000; */
-      margin-bottom: 35px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-group {
-      margin-bottom: 25px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 18px;
-      color: #215a5e;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      background-color: #edf8f8;
-      transition: border-color 0.2s ease-out;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: #215a5e;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 14px 28px;
-      background-color: #286c71;
-      color: #fffffe;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s ease-out;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn:hover {
-      background-color: #1b474b;
-    }
-
-    .result {
-      margin-top: 30px;
-    }
-
-    .result h2 {
-      font-size: 22px;
-      color: #2c3e50;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .result-box {
-      padding: 14px;
-      background-color: #edf8f8;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    #graphContainer {
-      max-width: 300px;
-      margin: 0 auto;
-    }
-
-    #graphContainer img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-
-    .download-btn {
-      display: block;
-      /* margin-top: 30px; */
-      text-align: center;
-    }
-
-    .sentiment {
-      color: #215a5e;
-    }
-
-    .summaryResult {
-      font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-      font-size: 25px;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="header">
-      <h1> <span class="sentiment underline">Sentiment</span> Scanner</h1>
-      <p class="italic">Unlock the power of Natural Language Processing and Machine Learning to make your business
-        analytics more insightful</p>
-      <div class="note"><span class="text-black opacity-60">NOTE: Either upload a file or enter text to get the
-          sentiment analyzed!</span></div>
-    </div>
-
-    <form id="predictionForm">
-      <div class="form-group">
-        <label for="csvFileInput">Upload your CSV file</label>
-        <input type="file" id="csvFileInput" accept=".csv" class="form-control" />
-      </div>
-
-      <div class="form-group">
-        <label for="textInput">Product Review for Analysis</label>
-        <textarea id="textInput" class="form-control" placeholder="Enter text..."></textarea>
-      </div>
-
-      <button type="button" id="PredictButton" onclick="predict()" class="btn">ANALYZE</button>
-    </form>
-
-    <div class="result">
-      <h2>Sentiment Analysis Result for Individual Review</h2>
-      <div class="result-box">
-        <div id="predictionResult"></div>
-      </div>
-
-      <h2>Overall Sentiment of the Buyers</h2>
-      <div class="result-box">
-        <div id="summaryResult"></div>
-      </div>
-
-      <h2 class="mt-10">Graph Result</h2>
-      <div class="result-box">
-        <div id="graphContainer"></div>
-      </div>
-    </div>
-
-    <div class="download-btn">
-      <button id="downloadBtn" style="display: none" onclick="downloadPredictions()" class="btn">
-        DOWNLOAD ANALYSIS CSV FILE
-      </button>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
-  <!-- <script src="https://unpkg.com/marked/lib/marked.umd.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
-  <script>
-    function predict() {
-      var PredictButton = document.getElementById("PredictButton");
-      var csvFileInput = document.getElementById("csvFileInput");
-      var textInput = document.getElementById("textInput");
-      var predictionResult = document.getElementById("predictionResult");
-      var summaryResult = document.getElementById("summaryResult");
-      var prosResult = document.getElementById("prosResult");
-      var consResult = document.getElementById("consResult");
-      var graphContainer = document.getElementById("graphContainer");
-
-      PredictButton.innerHTML = "Analyzing...";
-
-      if (csvFileInput.files.length > 0) {
-        var formData = new FormData();
-        formData.append("file", csvFileInput.files[0]);
-
-        fetch("http://localhost:5000/predict", {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => {
-            PredictButton.innerHTML = "Analyze";
-            // Graph Header Response.................................................
-            if (response.headers.get("X-Graph-Exists") === "true") {
-              console.log("Graph");
-              var graphData = response.headers.get("X-Graph-Data");
-              displayGraph(graphData);
-            }
-
-            // Summary Headers.......................................................
-            const summaryResponseHeader = response.headers.get("summary-response");
-            if (summaryResponseHeader) {
-              const summaryResponse = JSON.parse(summaryResponseHeader);
-              const summaryContent = summaryResponse.summary;
-              const converter = new showdown.Converter();
-              const htmlSummary = converter.makeHtml(summaryContent);
-              summaryResult.innerHTML = htmlSummary;
-              // const htmlSummary = marked(summaryContent); // Convert markdown to HTML
-              // summaryResult.innerHTML = summaryContent;
-            } else {
-              summaryResult.innerHTML = "api didnt respond anything";
-            }
-
-            return response.blob();
-          })
-          .then((blob) => {
-            console.log("Blob:", blob);
-
-            document.getElementById("downloadBtn").style.display = "block";
-            document.getElementById("downloadBtn").onclick = function () {
-              console.log("Downloading...");
-              var url = URL.createObjectURL(blob);
-              console.log("URL:", url);
-
-              var a = document.createElement("a");
-              a.href = url;
-              a.download = "Predictions.csv";
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            };
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      } else if (textInput.value.trim() !== "") {
-        fetch("http://localhost:5000/predict", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text: textInput.value.trim() }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-            predictionResult.innerHTML =
-              "Analyzed sentiment: " + data.prediction;
-          });
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Sentiment Analysis</title>
+    <style>
+      body {
+        background-color: #f0f4f8;
+        font-family: "Noto Sans", sans-serif;
       }
-    }
 
-    function downloadPredictions() {
-      console.log("Download prediction");
-    }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 50px;
+        background-color: #fffffe;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+      }
 
-    function displayGraph(graphData) {
-      predictionResult.innerHTML = "";
-      var graphUrl = "data:image/png;base64," + graphData;
-      var img = document.createElement("img");
-      img.src = graphUrl;
-      graphContainer.appendChild(img);
-    }
-  </script>
-</body>
+      .header {
+        text-align: center;
+        margin-bottom: 50px;
+      }
 
+      .header h1 {
+        font-size: 55px;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 18px;
+        color: #7f8c8d;
+        line-height: 1.4;
+        margin-bottom: 15px;
+      }
+
+      .note {
+        background-color: #c7e8eb;
+        padding: 18px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+        font-size: medium;
+        /* color: #0000; */
+        margin-bottom: 35px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 18px;
+        color: #215a5e;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        background-color: #edf8f8;
+        transition: border-color 0.2s ease-out;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #215a5e;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 14px 28px;
+        background-color: #286c71;
+        color: #fffffe;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease-out;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn:hover {
+        background-color: #1b474b;
+      }
+
+      .result {
+        margin-top: 30px;
+      }
+
+      .result h2 {
+        font-size: 22px;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .result-box {
+        padding: 14px;
+        background-color: #edf8f8;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      #graphContainer {
+        max-width: 300px;
+        margin: 0 auto;
+      }
+
+      #graphContainer img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .download-btn {
+        display: block;
+        /* margin-top: 30px; */
+        text-align: center;
+      }
+
+      .sentiment {
+        color: #215a5e;
+      }
+
+      .summaryResult {
+        font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+          "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+        font-size: 25px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1><span class="sentiment underline">Sentiment</span> Scanner</h1>
+        <p class="italic">
+          Unlock the power of Natural Language Processing and Machine Learning
+          to make your business analytics more insightful
+        </p>
+        <div class="note">
+          <span class="text-black opacity-60"
+            >NOTE: Either upload a file or enter text to get the sentiment
+            analyzed!</span
+          >
+        </div>
+      </div>
+
+      <form id="predictionForm">
+        <div class="form-group">
+          <label for="csvFileInput">Upload your CSV file</label>
+          <input
+            type="file"
+            id="csvFileInput"
+            accept=".csv"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="textInput">Product Review for Analysis</label>
+          <textarea
+            id="textInput"
+            class="form-control"
+            placeholder="Enter text..."
+          ></textarea>
+        </div>
+
+        <button
+          type="button"
+          id="PredictButton"
+          onclick="predict()"
+          class="btn"
+        >
+          ANALYZE
+        </button>
+      </form>
+
+      <div class="result">
+        <h2>Sentiment Analysis Result for Individual Review</h2>
+        <div class="result-box">
+          <div id="predictionResult"></div>
+        </div>
+
+        <h2>Overall Sentiment of the Buyers</h2>
+        <div class="result-box">
+          <div id="summaryResult"></div>
+        </div>
+
+        <h2 class="mt-10">Graph Result</h2>
+        <div class="result-box">
+          <div id="graphContainer"></div>
+        </div>
+      </div>
+
+      <div class="download-btn">
+        <button
+          id="downloadBtn"
+          style="display: none"
+          onclick="downloadPredictions()"
+          class="btn"
+        >
+          DOWNLOAD ANALYSIS CSV FILE
+        </button>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js"
+      defer
+    ></script>
+    <!-- <script src="https://unpkg.com/marked/lib/marked.umd.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+    <script>
+      function predict() {
+        var PredictButton = document.getElementById("PredictButton");
+        var csvFileInput = document.getElementById("csvFileInput");
+        var textInput = document.getElementById("textInput");
+        var predictionResult = document.getElementById("predictionResult");
+        var summaryResult = document.getElementById("summaryResult");
+        var prosResult = document.getElementById("prosResult");
+        var consResult = document.getElementById("consResult");
+        var graphContainer = document.getElementById("graphContainer");
+
+        PredictButton.innerHTML = "Analyzing...";
+
+        if (csvFileInput.files.length > 0) {
+          var formData = new FormData();
+          formData.append("file", csvFileInput.files[0]);
+
+          fetch("https://sentiment-rev.onrender.com/predict", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => {
+              PredictButton.innerHTML = "Analyze";
+              // Graph Header Response.................................................
+              if (response.headers.get("X-Graph-Exists") === "true") {
+                console.log("Graph");
+                var graphData = response.headers.get("X-Graph-Data");
+                displayGraph(graphData);
+              }
+
+              // Summary Headers.......................................................
+              const summaryResponseHeader =
+                response.headers.get("summary-response");
+              if (summaryResponseHeader) {
+                const summaryResponse = JSON.parse(summaryResponseHeader);
+                const summaryContent = summaryResponse.summary;
+                const converter = new showdown.Converter();
+                const htmlSummary = converter.makeHtml(summaryContent);
+                summaryResult.innerHTML = htmlSummary;
+                // const htmlSummary = marked(summaryContent); // Convert markdown to HTML
+                // summaryResult.innerHTML = summaryContent;
+              } else {
+                summaryResult.innerHTML = "api didnt respond anything";
+              }
+
+              return response.blob();
+            })
+            .then((blob) => {
+              console.log("Blob:", blob);
+
+              document.getElementById("downloadBtn").style.display = "block";
+              document.getElementById("downloadBtn").onclick = function () {
+                console.log("Downloading...");
+                var url = URL.createObjectURL(blob);
+                console.log("URL:", url);
+
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = "Predictions.csv";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              };
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        } else if (textInput.value.trim() !== "") {
+          fetch("https://sentiment-rev.onrender.com/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text: textInput.value.trim() }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              predictionResult.innerHTML =
+                "Analyzed sentiment: " + data.prediction;
+            });
+        }
+      }
+
+      function downloadPredictions() {
+        console.log("Download prediction");
+      }
+
+      function displayGraph(graphData) {
+        predictionResult.innerHTML = "";
+        var graphUrl = "data:image/png;base64," + graphData;
+        var img = document.createElement("img");
+        img.src = graphUrl;
+        graphContainer.appendChild(img);
+      }
+    </script>
+  </body>
 </html>
