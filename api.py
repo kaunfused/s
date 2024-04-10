@@ -65,7 +65,7 @@ def predict():
 
             text_data_list = "\n".join([", ".join(map(str, row)) for row in data_list])
         
-            response = model.generate_content(f"You will receive some real reviews for a specific product. You've to respond with a summary of all the reviews in 40-50 words and also highlight the pros and cons in a point wise manner. First write the summary after writing the Summary heading. Then Write the PROS heading seperating each pros by a newline and then write the CONS seperating each cons by a newline, Dont use asterisk sign anywhere to bold headings in the answer. Make sure to stick the response to this exact format I've mentioned. Here are the reviews: {text_data_list}")
+            response = model.generate_content(f"You will receive some real reviews for a specific product. You've to respond with a summary of all the reviews in 40-50 words and also highlight the pros and cons in a point wise manner. First write the summary after writing the Summary heading. Then Write the PROS heading seperating each pros by a newline and then write the CONS seperating each cons by a newline, Use asterisk signs to bold the heading, and <ins></ins> to underline the heading. Make sure to stick to markdown styling format. Here are the reviews: {text_data_list}")
 
             print(response.text)
 
